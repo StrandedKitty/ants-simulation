@@ -40,8 +40,8 @@ export default class ScreenScene extends AbstractScene {
 
 		this.add(ground);
 
-		const antTexture = new THREE.TextureLoader().load('ant.png');
-		const foodTexture = new THREE.TextureLoader().load('food.png');
+		const antTexture = new THREE.TextureLoader().load('textures/ant.png');
+		const foodTexture = new THREE.TextureLoader().load('textures/food.png');
 
 		antTexture.magFilter = foodTexture.magFilter = THREE.NearestFilter;
 		antTexture.minFilter = foodTexture.minFilter = THREE.LinearMipMapLinearFilter;

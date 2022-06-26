@@ -24,7 +24,8 @@
   },
   "scripts": {
     "build": "webpack --config ./webpack.config.js --mode=production",
-    "dev": "webpack serve --config ./webpack.config.js --mode=development"
+    "dev": "webpack serve --config ./webpack.config.js --mode=development",
+    "gh-pages": "push-dir --dir=build --branch=gh-pages"
   },
   "author": "",
   "license": "MIT"

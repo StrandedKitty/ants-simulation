@@ -4,6 +4,8 @@ import Renderer from "./Renderer";
 import WorldComputeScene from "./scenes/WorldComputeScene";
 import AntsDiscretizeScene from "./scenes/AntsDiscretizeScene";
 import WorldBlurScene from "./scenes/WorldBlurScene";
+import Config from "./Config";
+import GUI from "./GUI";
 
 export interface SceneCollection {
 	ants: AntsComputeScene;
@@ -16,7 +18,10 @@ export interface SceneCollection {
 export default new class App {
 	private renderer: Renderer = new Renderer(<HTMLCanvasElement>document.getElementById('canvas'));
 	private scenes: SceneCollection;
-	private loop = (deltaTime: number): void => this.update(deltaTime);
+	private gui: GUI = new GUI();
+	private renderLoop = (deltaTime: number): void => this.render(deltaTime);
+	private simInterval: NodeJS.Timer;
+	private simulationStepsPerSecond: number = 0;
 
 	constructor() {
 		this.initScenes();
@@ -25,7 +30,24 @@ export default new class App {
 
 		this.resize();
 
-		this.update(0);
+		this.renderLoop(0);
+
+		this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
+		this.updateSimulationInterval();
+	}
+
+	private updateSimulationInterval() {
+		clearInterval(this.simInterval);
+
+		this.simInterval = setInterval(() => {
+			if (Config.simulationStepsPerSecond !== this.simulationStepsPerSecond) {
+				this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
+				this.updateSimulationInterval();
+				return;
+			}
+
+			this.simulationStep();
+		}, 1000 / this.simulationStepsPerSecond);
 	}
 
 	private initScenes() {
@@ -49,14 +71,17 @@ export default new class App {
 		}
 	}
 
-	private update(deltaTime: number) {
-		requestAnimationFrame(this.loop);
-
-		for (let i = 0; i < 3; i++) {
-			for (const scene of Object.values(this.scenes)) {
-				scene.update(deltaTime);
-			}
-			this.renderer.renderScenes(this.scenes);
+	private simulationStep() {
+		for (const scene of Object.values(this.scenes)) {
+			scene.update(0);
 		}
+
+		this.renderer.renderSimulation(this.scenes);
+	}
+
+	private render(deltaTime: number) {
+		requestAnimationFrame(this.renderLoop);
+
+		this.renderer.renderToScreen(this.scenes);
 	}
 }

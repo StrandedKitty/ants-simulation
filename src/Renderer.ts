@@ -1,14 +1,9 @@
 import * as THREE from 'three';
 import {SceneCollection} from "./App";
-
-const Config = {
-	worldSize: 1024,
-	antsCount: 64 ** 2
-};
+import Config from "./Config";
 
 interface Resources {
-	worldRenderTarget0: THREE.WebGLRenderTarget;
-	worldRenderTarget1: THREE.WebGLRenderTarget;
+	worldRenderTarget: THREE.WebGLRenderTarget;
 	worldBlurredRenderTarget: THREE.WebGLRenderTarget;
 	antsDataRenderTarget0: THREE.WebGLRenderTarget;
 	antsDataRenderTarget1: THREE.WebGLRenderTarget;
@@ -29,14 +24,7 @@ export default class Renderer {
 		const antTextureSize = Math.round(Math.sqrt(Config.antsCount));
 
 		this.resources = {
-			worldRenderTarget0: new THREE.WebGLRenderTarget(Config.worldSize, Config.worldSize, {
-				format: THREE.RGBAFormat,
-				type: THREE.FloatType,
-				depthBuffer: false,
-				magFilter: THREE.LinearFilter,
-				minFilter: THREE.LinearFilter,
-			}),
-			worldRenderTarget1: new THREE.WebGLRenderTarget(Config.worldSize, Config.worldSize, {
+			worldRenderTarget: new THREE.WebGLRenderTarget(Config.worldSize, Config.worldSize, {
 				format: THREE.RGBAFormat,
 				type: THREE.FloatType,
 				depthBuffer: false,
@@ -74,15 +62,14 @@ export default class Renderer {
 		};
 	}
 
-	public renderScenes(scenes: SceneCollection) {
+	public renderSimulation(scenes: SceneCollection) {
 		const [antsComputeSource, antsComputeTarget] = scenes.ants.getRenderTargets();
-		const [worldComputeSource, worldComputeTarget] = scenes.world.getRenderTargets();
 
 		this.renderer.setViewport(0, 0, scenes.ants.renderWidth, scenes.ants.renderHeight);
 
 		this.renderer.setRenderTarget(antsComputeTarget);
 		scenes.ants.material.uniforms.tLastState.value = antsComputeSource.texture;
-		scenes.ants.material.uniforms.tWorld.value = worldComputeSource.texture;
+		scenes.ants.material.uniforms.tWorld.value = scenes.worldBlur.getRenderTarget().texture;
 		this.renderer.render(scenes.ants, scenes.ants.camera);
 
 		this.renderer.setViewport(0, 0, scenes.discretize.renderWidth, scenes.discretize.renderHeight);
@@ -94,7 +81,7 @@ export default class Renderer {
 
 		this.renderer.setViewport(0, 0, scenes.world.renderWidth, scenes.world.renderHeight);
 
-		this.renderer.setRenderTarget(worldComputeTarget);
+		this.renderer.setRenderTarget(scenes.world.getRenderTarget());
 		scenes.world.material.uniforms.tLastState.value = scenes.worldBlur.getRenderTarget().texture;
 		scenes.world.material.uniforms.tDiscreteAnts.value = scenes.discretize.getRenderTarget().texture;
 		scenes.world.material.uniforms.pointerData.value = scenes.screen.getPointerData();
@@ -103,19 +90,42 @@ export default class Renderer {
 		this.renderer.setViewport(0, 0, scenes.worldBlur.renderWidth, scenes.worldBlur.renderHeight);
 
 		this.renderer.setRenderTarget(scenes.worldBlur.getRenderTarget());
-		scenes.worldBlur.material.uniforms.tWorld.value = worldComputeTarget.texture;
+		scenes.worldBlur.material.uniforms.tWorld.value = scenes.world.getRenderTarget().texture;
 		this.renderer.render(scenes.worldBlur, scenes.worldBlur.camera);
 
-		this.renderer.setViewport(0, 0, scenes.screen.renderWidth, scenes.screen.renderHeight);
-
-		this.renderer.setRenderTarget(null);
 		scenes.screen.material.uniforms.tData.value = antsComputeTarget.texture;
 		scenes.screen.groundMaterial.uniforms.map.value = scenes.worldBlur.getRenderTarget().texture;
+	}
+
+	public renderToScreen(scenes: SceneCollection) {
+		this.renderer.setViewport(0, 0, scenes.screen.renderWidth, scenes.screen.renderHeight);
+		this.renderer.setRenderTarget(null);
 		this.renderer.render(scenes.screen, scenes.screen.camera);
 	}
 
 	public resizeCanvas(width: number, height: number) {
 		this.canvas.width = width;
 		this.canvas.height = height;
+	}
+
+	public getCommonMaterialDefines(): Record<string, string> {
+		return {
+			WORLD_SIZE: Renderer.convertNumberToFloatString(Config.worldSize),
+			SCENT_THRESHOLD: Renderer.convertNumberToFloatString(Config.scentThreshold),
+			SCENT_FADE_OUT_FACTOR: Renderer.convertNumberToFloatString(Config.scentFadeOutFactor),
+			SCENT_BLUR_RADIUS: Renderer.convertNumberToFloatString(Config.scentBlurRadius),
+			SCENT_MAX_STORAGE: Renderer.convertNumberToFloatString(Config.scentMaxStorage),
+			SCENT_PER_MARKER: Renderer.convertNumberToFloatString(Config.scentPerMarker),
+			ANT_SPEED: Renderer.convertNumberToFloatString(Config.antSpeed),
+			ANT_ROTATION_ANGLE: Renderer.convertNumberToFloatString(Config.antRotationAngle)
+		};
+	}
+
+	public destroy() {
+
+	}
+
+	static convertNumberToFloatString(n: number): string {
+		return n.toFixed(8);
 	}
 }

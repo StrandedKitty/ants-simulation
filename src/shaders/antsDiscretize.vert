@@ -1,5 +1,3 @@
-#version 300 es
-
 precision highp float;
 precision highp int;
 
@@ -14,8 +12,7 @@ out float vIsCellCleared;
 uniform sampler2D tDataCurrent;
 uniform sampler2D tDataLast;
 
-const float worldSize = 1024.;
-const float cellSize = 1. / worldSize;
+const float cellSize = 1. / WORLD_SIZE;
 
 void main()	{
     vUv = uv;
@@ -41,7 +38,7 @@ void main()	{
     vIsCellCleared = isCellCleared;
 
     gl_Position = vec4(
-        (position.xy * cellSize * 0.5 + floor(offset * worldSize) / worldSize + cellSize * 0.5) * 2. - 1.,
+        (position.xy * cellSize * 0.1 + floor(offset * WORLD_SIZE) / WORLD_SIZE + cellSize * 0.5) * 2. - 1.,
         0,
         1
     );

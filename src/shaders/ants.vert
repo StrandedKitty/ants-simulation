@@ -24,7 +24,7 @@ void main()	{
     float sampleY = floor(id / dataTextureSize);
     float sampleX = id - sampleY * dataTextureSize;
 
-    vec4 dataSample = texture2D(tData, vec2(sampleX, sampleY) / dataTextureSize);
+    vec4 dataSample = texture(tData, vec2(sampleX, sampleY) / dataTextureSize);
 
     vec2 offset = dataSample.xy * 10.;
     vec2 rotatedPosition = rotate(position.xy, -dataSample.z + PI * 0.5);

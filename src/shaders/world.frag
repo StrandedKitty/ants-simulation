@@ -1,20 +1,22 @@
 precision highp float;
 precision highp int;
 
-varying vec2 vUv;
+in vec2 vUv;
+
+out vec4 FragColor;
 
 uniform sampler2D tLastState;
 uniform sampler2D tDiscreteAnts;
 uniform vec4 pointerData;
 
 void main()	{
-    vec4 lastState = texture2D(tLastState, vUv);
-    vec3 discreteAnts = texture2D(tDiscreteAnts, vUv).xyz;
+    vec4 lastState = texture(tLastState, vUv);
+    vec3 discreteAnts = texture(tDiscreteAnts, vUv).xyz;
 
     float isFood = lastState.x;
     float isHome = lastState.y;
-    float scentToHome = lastState.z + discreteAnts.x * 4.;
-    float scentToFood =  lastState.w + discreteAnts.y * 4.;
+    float scentToHome = lastState.z + discreteAnts.x * 2.;
+    float scentToFood =  lastState.w + discreteAnts.y * 2.;
 
     if (discreteAnts.z == 1.) {
         isFood = 0.;
@@ -25,5 +27,5 @@ void main()	{
         isHome = max(isHome, pointerData.y);
     }
 
-    gl_FragColor = vec4(isFood, isHome, scentToHome, scentToFood);
+    FragColor = vec4(isFood, isHome, scentToHome, scentToFood);
 }

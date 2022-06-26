@@ -8,7 +8,6 @@ import vertexShader from '../shaders/antsDiscretize.vert';
 export default class AntsDiscretizeScene extends AbstractScene {
 	public readonly camera: THREE.OrthographicCamera = new THREE.OrthographicCamera();
 	public readonly material: THREE.RawShaderMaterial;
-	private readonly renderTarget: WebGLRenderTarget;
 
 	constructor(renderer: Renderer) {
 		super(renderer);
@@ -20,7 +19,9 @@ export default class AntsDiscretizeScene extends AbstractScene {
 				tDataLast: {value: null},
 			},
 			vertexShader,
-			fragmentShader
+			fragmentShader,
+			defines: this.renderer.getCommonMaterialDefines(),
+			glslVersion: THREE.GLSL3
 		});
 		const mesh = new THREE.InstancedMesh(
 			geometry,
@@ -31,14 +32,12 @@ export default class AntsDiscretizeScene extends AbstractScene {
 
 		this.material = material;
 
-		this.renderTarget = this.renderer.resources.antsDiscreteRenderTarget;
-
-		this.renderWidth = this.renderer.resources.worldRenderTarget0.width;
-		this.renderHeight = this.renderer.resources.worldRenderTarget0.height;
+		this.renderWidth = this.renderer.resources.worldRenderTarget.width;
+		this.renderHeight = this.renderer.resources.worldRenderTarget.height;
 	}
 
 	public getRenderTarget(): WebGLRenderTarget {
-		return this.renderTarget;
+		return this.renderer.resources.antsDiscreteRenderTarget;
 	}
 
 	public resize(width: number, height: number) {

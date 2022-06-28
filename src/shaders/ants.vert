@@ -26,7 +26,7 @@ void main()	{
 
     vec4 dataSample = texture(tData, vec2(sampleX, sampleY) / dataTextureSize);
 
-    vec2 offset = dataSample.xy * 10.;
+    vec2 offset = dataSample.xy;
     vec2 rotatedPosition = rotate(position.xy, -dataSample.z + PI * 0.5);
 
     vIsCarryingFood = float(int(dataSample.w) & 1);

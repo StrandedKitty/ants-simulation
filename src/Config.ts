@@ -8,5 +8,6 @@ export default {
 	scentMaxStorage: 1e6,
 	scentPerMarker: 1000,
 	antSpeed: 1,
-	antRotationAngle: Math.PI / 50
+	antRotationAngle: Math.PI / 50,
+	brushRadius: 20,
 };

@@ -77,21 +77,6 @@ void main()	{
         storage = 0.;
     }
 
-    if (tryGetFood(pos) && isCarrying == 0.) {
-        isCarrying = 1.;
-        angle += PI;
-        storage = getMaxScentStorage(vUv);
-    }
-
-    if (tryDropFood(pos)) {
-        storage = getMaxScentStorage(vUv);
-
-        if (isCarrying == 1.) {
-            isCarrying = 0.;
-            angle += PI;
-        }
-    }
-
     if (isCarrying == 0.) {
         if (noise < 0.33) {
             vec2 offset = vec2(cos(angle), sin(angle)) * sampleDistance;
@@ -179,6 +164,21 @@ void main()	{
 
     if (fract(pos.x) == 0. || fract(pos.y) == 0.) {
         angle += PI * (noise - 0.5);
+    }
+
+    if (tryGetFood(pos) && isCarrying == 0.) {
+        isCarrying = 1.;
+        angle += PI;
+        storage = getMaxScentStorage(vUv);
+    }
+
+    if (tryDropFood(pos)) {
+        storage = getMaxScentStorage(vUv);
+
+        if (isCarrying == 1.) {
+            isCarrying = 0.;
+            angle += PI;
+        }
     }
 
     FragColor = vec4(

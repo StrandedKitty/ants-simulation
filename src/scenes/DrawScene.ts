@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import Renderer from "../Renderer";
 import AbstractScene from "./AbstractScene";
 import FullScreenTriangleGeometry from "../utils/FullScreenTriangleGeometry";
-import fragmentShader from '../shaders/world.frag';
-import vertexShader from '../shaders/world.vert';
+import fragmentShader from '../shaders/draw.frag';
+import vertexShader from '../shaders/draw.vert';
 import {WebGLRenderTarget} from "three";
 
-export default class WorldComputeScene extends AbstractScene {
+export default class DrawScene extends AbstractScene {
 	public readonly camera: THREE.OrthographicCamera = new THREE.OrthographicCamera();
 	public readonly material: THREE.RawShaderMaterial;
 
@@ -16,8 +16,10 @@ export default class WorldComputeScene extends AbstractScene {
 		const geometry = new FullScreenTriangleGeometry();
 		const material = new THREE.RawShaderMaterial({
 			uniforms: {
-				tLastState: {value: null},
-				tDiscreteAnts: {value: null}
+				tWorld: {value: null},
+				pointerPosition: {value: new THREE.Vector2()},
+				drawMode: {value: 0},
+				brushRadius: {value: 0},
 			},
 			vertexShader,
 			fragmentShader,

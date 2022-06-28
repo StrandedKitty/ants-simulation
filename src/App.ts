@@ -6,6 +6,7 @@ import AntsDiscretizeScene from "./scenes/AntsDiscretizeScene";
 import WorldBlurScene from "./scenes/WorldBlurScene";
 import Config from "./Config";
 import GUI from "./GUI";
+import DrawScene from "./scenes/DrawScene";
 
 export interface SceneCollection {
 	ants: AntsComputeScene;
@@ -13,6 +14,7 @@ export interface SceneCollection {
 	worldBlur: WorldBlurScene;
 	discretize: AntsDiscretizeScene;
 	screen: ScreenScene;
+	draw: DrawScene;
 }
 
 export default new class App {
@@ -22,6 +24,7 @@ export default new class App {
 	private renderLoop = (deltaTime: number): void => this.render(deltaTime);
 	private simInterval: NodeJS.Timer;
 	private simulationStepsPerSecond: number = 0;
+	private simStarted: boolean = false;
 
 	constructor() {
 		this.initScenes();
@@ -47,6 +50,8 @@ export default new class App {
 			}
 
 			this.simulationStep();
+
+			this.simStarted = true;
 		}, 1000 / this.simulationStepsPerSecond);
 	}
 
@@ -57,12 +62,13 @@ export default new class App {
 			worldBlur: new WorldBlurScene(this.renderer),
 			discretize: new AntsDiscretizeScene(this.renderer),
 			screen: new ScreenScene(this.renderer),
+			draw: new DrawScene(this.renderer)
 		};
 	}
 
 	private resize() {
-		const width = window.innerWidth;
-		const height = window.innerHeight;
+		const width = window.innerWidth * window.devicePixelRatio;
+		const height = window.innerHeight * window.devicePixelRatio;
 
 		this.renderer.resizeCanvas(width, height);
 
@@ -81,6 +87,10 @@ export default new class App {
 
 	private render(deltaTime: number) {
 		requestAnimationFrame(this.renderLoop);
+
+		if (!this.simStarted) {
+			return;
+		}
 
 		this.renderer.renderToScreen(this.scenes);
 	}

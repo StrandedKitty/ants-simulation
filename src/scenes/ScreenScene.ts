@@ -8,25 +8,29 @@ import fragmentShaderGround from "../shaders/screenWorld.frag";
 
 enum PointerState {
 	None,
-	LMB,
-	RMB
+	Food,
+	Home,
+	Obstacle
 }
 
 export default class ScreenScene extends AbstractScene {
-	public readonly camera: THREE.PerspectiveCamera;
+	public readonly camera: THREE.OrthographicCamera;
 	public readonly material: THREE.ShaderMaterial;
 	public readonly groundMaterial: THREE.ShaderMaterial;
 	public readonly pointerPosition: THREE.Vector2 = new THREE.Vector2();
-	public pointerState: PointerState = PointerState.None;
+	public drawMode: PointerState = PointerState.None;
+	private cameraZoomLinear: number = 0;
+	private isPointerDown: boolean = false;
 
 	constructor(renderer: Renderer) {
 		super(renderer);
 
 		const ground = new THREE.Mesh(
-			new THREE.PlaneBufferGeometry(10, 10),
+			new THREE.PlaneBufferGeometry(1, 1),
 			new THREE.ShaderMaterial({
 				uniforms: {
 					map: {value: this.renderer.resources.worldRenderTarget.texture},
+					tDiscreteAnts: {value: this.renderer.resources.antsDiscreteRenderTarget.texture},
 				},
 				vertexShader: vertexShaderGround,
 				fragmentShader: fragmentShaderGround,
@@ -37,8 +41,8 @@ export default class ScreenScene extends AbstractScene {
 
 		this.groundMaterial = ground.material;
 
-		ground.position.x += 5;
-		ground.position.y += 5;
+		//ground.position.x = 0.5;
+		//ground.position.y = 0.5;
 
 		this.add(ground);
 
@@ -60,28 +64,31 @@ export default class ScreenScene extends AbstractScene {
 		});
 
 		const ants = new THREE.InstancedMesh(
-			new THREE.PlaneBufferGeometry(0.15, 0.15),
+			new THREE.PlaneBufferGeometry(0.015, 0.015),
 			this.material,
 			this.renderer.resources.antsDataRenderTarget0.width * this.renderer.resources.antsDataRenderTarget0.height
 		)
 
+		ants.position.x = ants.position.y = -0.5;
+
 		this.add(ants);
 
-		this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 10000);
+		this.camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5);
 
 		this.add(this.camera);
 
 		this.camera.position.z = 12;
-		this.camera.position.x = this.camera.position.y = 5;
 
 		const raycastVector = new THREE.Vector2(0, 0);
 		const raycaster = new THREE.Raycaster();
 
-		this.renderer.canvas.addEventListener('contextmenu', (e) => {
+		this.renderer.canvas.addEventListener('contextmenu', e => {
 			e.preventDefault();
 		});
 
-		this.renderer.canvas.addEventListener('pointerdown', (e) => {
+		this.renderer.canvas.addEventListener('pointerdown', e => {
+			this.isPointerDown = true;
+
 			raycastVector.x = (e.clientX / window.innerWidth) * 2 - 1;
 			raycastVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
@@ -92,45 +99,80 @@ export default class ScreenScene extends AbstractScene {
 			if (intersects.length > 0) {
 				const uv = intersects[0].uv;
 				this.pointerPosition.copy(uv);
+			}
+		});
 
-				if (e.button === 0) {
-					this.pointerState = PointerState.LMB;
-				} else if (e.button === 2) {
-					this.pointerState = PointerState.RMB;
+		this.renderer.canvas.addEventListener('pointermove', e => {
+			if (this.isPointerDown) {
+				const dx = e.movementX;
+				const dy = e.movementY;
+
+				this.camera.position.x -= dx / window.innerHeight / this.camera.zoom;
+				this.camera.position.y += dy / window.innerHeight / this.camera.zoom;
+			}
+
+			raycastVector.x = (e.clientX / window.innerWidth) * 2 - 1;
+			raycastVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+			raycaster.setFromCamera(raycastVector, this.camera);
+
+			const intersects = raycaster.intersectObjects([ground]);
+
+			if (intersects.length > 0) {
+				const uv = intersects[0].uv;
+				this.pointerPosition.copy(uv);
+			}
+		});
+
+		this.renderer.canvas.addEventListener('pointerup', e => {
+			this.isPointerDown = false;
+		});
+
+		this.renderer.canvas.addEventListener('pointerleave', e => {
+			this.isPointerDown = false;
+		});
+
+		this.renderer.canvas.addEventListener('wheel', e => {
+			this.cameraZoomLinear -= e.deltaY * 0.001;
+
+			this.updateCameraZoom();
+		});
+
+		window.addEventListener('keydown', e => {
+			switch (e.code) {
+				case 'KeyQ': {
+					this.drawMode = PointerState.Home;
+					break;
+				}
+				case 'KeyW': {
+					this.drawMode = PointerState.Food;
+					break;
+				}
+				case 'KeyE': {
+					this.drawMode = PointerState.Obstacle;
+					break;
 				}
 			}
 		});
 
-		this.renderer.canvas.addEventListener('pointermove', (e) => {
-			raycastVector.x = (e.clientX / window.innerWidth) * 2 - 1;
-			raycastVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-			raycaster.setFromCamera(raycastVector, this.camera);
-
-			const intersects = raycaster.intersectObjects([ground]);
-
-			if (intersects.length > 0) {
-				const uv = intersects[0].uv;
-				this.pointerPosition.copy(uv);
-			}
-		});
-
-		this.renderer.canvas.addEventListener('pointerup', (e) => {
-			this.pointerState = PointerState.None;
+		window.addEventListener('keyup', e => {
+			this.drawMode = PointerState.None;
 		});
 	}
 
-	public getPointerData(): THREE.Vector4 {
-		return new THREE.Vector4(
-			+(this.pointerState === PointerState.LMB),
-			+(this.pointerState === PointerState.RMB),
-			this.pointerPosition.x,
-			this.pointerPosition.y
-		);
+	private updateCameraZoom() {
+		this.camera.zoom = 2 ** this.cameraZoomLinear;
+		this.camera.updateProjectionMatrix();
 	}
 
 	public resize(width: number, height: number) {
-		this.camera.aspect = width / height;
+		const aspect = width / height;
+
+		this.camera.left = -0.5 * aspect;
+		this.camera.right = 0.5 * aspect;
+		this.camera.top = 0.5;
+		this.camera.bottom = -0.5;
+
 		this.camera.updateProjectionMatrix();
 
 		this.renderWidth = width;

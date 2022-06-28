@@ -15,6 +15,8 @@ export default class GUI {
 
 		const controlsFolder = this.gui.addFolder('Controls');
 
+		controlsFolder.add(Config, 'brushRadius', 1, 100);
+
 		simFolder.open();
 		controlsFolder.open();
 	}

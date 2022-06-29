@@ -12,14 +12,16 @@ void main()	{
     vec4 lastState = texture(tLastState, vUv);
     vec3 discreteAnts = texture(tDiscreteAnts, vUv).xyz;
 
-    float isFood = lastState.x;
-    float isHome = lastState.y;
-    float scentToHome = min(10., lastState.z + discreteAnts.x * 2.);
-    float scentToFood =  min(10., lastState.w + discreteAnts.y * 2.);
+    int cellData = int(lastState.x);
+    int isFood = cellData & 1;
+    int isHome = (cellData & 2) >> 1;
+    int isObstacle = (cellData & 4) >> 2;
+    float scentToHome = lastState.y + discreteAnts.x * 10.;
+    float scentToFood =  lastState.z + discreteAnts.y * 10.;
 
     if (discreteAnts.z == 1.) {
-        isFood = 0.;
+        isFood = 0;
     }
 
-    FragColor = vec4(isFood, isHome, scentToHome, scentToFood);
+    FragColor = vec4(float(isFood + (isHome << 1) + (isObstacle << 2)), scentToHome, scentToFood, 0);
 }

@@ -28,15 +28,25 @@ vec2 roundUvToCellCenter(vec2 uv) {
 }
 
 bool tryGetFood(vec2 pos) {
-    return texture(tWorld, roundUvToCellCenter(pos)).x == 1.;
+    float value = texture(tWorld, roundUvToCellCenter(pos)).x;
+
+    return (int(value) & 1) == 1;
 }
 
 bool tryDropFood(vec2 pos) {
-    return texture(tWorld, roundUvToCellCenter(pos)).y == 1.;
+    float value = texture(tWorld, roundUvToCellCenter(pos)).x;
+
+    return ((int(value) & 2) >> 1) == 1;
+}
+
+bool isObstacle(vec2 pos) {
+    float value = texture(tWorld, roundUvToCellCenter(pos)).x;
+
+    return ((int(value) & 4) >> 2) == 1;
 }
 
 float smell(vec2 pos, float isCarrying) {
-    vec2 value = texture(tWorld, pos).zw;
+    vec2 value = texture(tWorld, pos).yz;
 
     if (isCarrying > 0.5) {
         return value.y;
@@ -46,10 +56,13 @@ float smell(vec2 pos, float isCarrying) {
 }
 
 vec2 applyOffsetToPos(vec2 pos, vec2 offsetDirectaion) {
-    return vec2(
-        clamp(pos.x + offsetDirectaion.x * cellSize, 0., 1.),
-        clamp(pos.y + offsetDirectaion.y * cellSize, 0., 1.)
-    );
+    vec2 newPos = clamp(pos + offsetDirectaion * cellSize, 0., 1.);
+
+    if (!isObstacle(pos) && isObstacle(newPos)) {
+        return pos;
+    }
+
+    return newPos;
 }
 
 float getMaxScentStorage(vec2 antDataUv) {
@@ -67,6 +80,7 @@ void main()	{
     float angle = lastState.z;
     float isCarrying = float(int(lastState.w) & 1);
     float storage = float(int(lastState.w) >> 1);
+    bool wasObstacle = isObstacle(pos);
 
     bool movementProcessed = false;
 
@@ -162,7 +176,7 @@ void main()	{
     vec2 offset = vec2(cos(angle), sin(angle));
     pos = applyOffsetToPos(pos, offset);
 
-    if (fract(pos.x) == 0. || fract(pos.y) == 0.) {
+    if (fract(pos.x) == 0. || fract(pos.y) == 0. || (!wasObstacle && isObstacle(pos + offset * cellSize))) {
         angle += PI * (noise - 0.5);
     }
 

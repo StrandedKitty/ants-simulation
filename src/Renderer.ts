@@ -37,7 +37,7 @@ export default class Renderer {
 				type: THREE.FloatType,
 				depthBuffer: false,
 				magFilter: THREE.NearestFilter,
-				minFilter: THREE.LinearFilter,
+				minFilter: THREE.NearestFilter,
 			}),
 			worldBlurredRenderTarget: new THREE.WebGLRenderTarget(Config.worldSize, Config.worldSize, {
 				format: THREE.RGBAFormat,
@@ -137,7 +137,7 @@ export default class Renderer {
 		};
 	}
 
-	public destroy() {
+	public reset() {
 
 	}
 

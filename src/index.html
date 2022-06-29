@@ -9,9 +9,23 @@
 				margin: 0;
 				overflow: hidden;
 			}
+
+			#info {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+                text-align: left;
+                font-family: monospace;
+                color: white;
+                padding: 16px;
+                text-shadow: 0 0 3px black;
+                pointer-events: none;
+			}
 		</style>
 	</head>
 	<body>
+		<div id="info">Controls:<br/>Q - draw home cells<br/>W - draw food cells<br/>E - draw obstacle<br/>Drag and scroll to move the camera</div>
 		<canvas id="canvas"></canvas>
 	</body>
 </html>

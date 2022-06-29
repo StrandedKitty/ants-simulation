@@ -29,8 +29,7 @@ export default class ScreenScene extends AbstractScene {
 			new THREE.PlaneBufferGeometry(1, 1),
 			new THREE.ShaderMaterial({
 				uniforms: {
-					map: {value: this.renderer.resources.worldRenderTarget.texture},
-					tDiscreteAnts: {value: this.renderer.resources.antsDiscreteRenderTarget.texture},
+					map: {value: this.renderer.resources.worldRenderTarget.texture}
 				},
 				vertexShader: vertexShaderGround,
 				fragmentShader: fragmentShaderGround,

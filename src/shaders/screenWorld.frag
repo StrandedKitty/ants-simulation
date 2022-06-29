@@ -6,15 +6,16 @@ in vec2 vUv;
 out vec4 FragColor;
 
 uniform sampler2D map;
-uniform sampler2D tDiscreteAnts;
 
 void main()	{
-    vec4 value = clamp(texture(map, vUv), 0., 1.);
+    vec4 value = texture(map, vUv);
 
-    float isFood = value.r;
-    float isHome = value.g;
-    float toFood = value.b;
-    float toHome = value.a;
+    int cellData = int(value.x);
+    int isFood = cellData & 1;
+    int isHome = (cellData & 2) >> 1;
+    int isObstacle = (cellData & 4) >> 2;
+    float toFood = clamp(value.y, 0., 1.);
+    float toHome = clamp(value.z, 0., 1.);
 
     // The part below doen't seem right.
     // I could figure out a better way to make pheromone colors blend properly on white background :(
@@ -28,12 +29,12 @@ void main()	{
 
     vec3 color = mix(vec3(1, 1, 1), t, a * 0.7);
 
-    if (isFood == 1.) {
+    if (isFood == 1) {
         color = vec3(1, 0.1, 0.1);
-    }
-
-    if (isHome == 1.) {
+    } else if (isHome == 1) {
         color = vec3(0.1, 0.1, 1);
+    } else if (isObstacle == 1) {
+        color = vec3(0.6, 0.6, 0.6);
     }
 
     FragColor = vec4(color, 1);

@@ -37,18 +37,29 @@ export default new class App {
 
 		this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
 		this.updateSimulationInterval();
+
+		this.gui.on('antsCount', () => {
+			this.resetRenderer();
+		});
+
+		this.gui.on('worldSize', () => {
+			this.resetRenderer();
+		});
+
+		this.gui.on('simulationStepsPerSecond', () => {
+			this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
+			this.updateSimulationInterval();
+		});
+	}
+
+	private resetRenderer() {
+		this.renderer.reset();
 	}
 
 	private updateSimulationInterval() {
 		clearInterval(this.simInterval);
 
 		this.simInterval = setInterval(() => {
-			if (Config.simulationStepsPerSecond !== this.simulationStepsPerSecond) {
-				this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
-				this.updateSimulationInterval();
-				return;
-			}
-
 			this.simulationStep();
 
 			this.simStarted = true;

@@ -53,7 +53,7 @@ export default new class App {
 	}
 
 	private resetRenderer() {
-		this.renderer.reset();
+		this.renderer.reset(this.scenes);
 	}
 
 	private updateSimulationInterval() {

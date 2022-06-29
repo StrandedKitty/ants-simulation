@@ -5,6 +5,7 @@ import vertexShaderAnts from "../shaders/ants.vert";
 import fragmentShaderAnts from "../shaders/ants.frag";
 import vertexShaderGround from "../shaders/screenWorld.vert";
 import fragmentShaderGround from "../shaders/screenWorld.frag";
+import Config from "../Config";
 
 enum PointerState {
 	None,
@@ -16,11 +17,14 @@ enum PointerState {
 export default class ScreenScene extends AbstractScene {
 	public readonly camera: THREE.OrthographicCamera;
 	public readonly material: THREE.ShaderMaterial;
+	public ants: THREE.InstancedMesh;
 	public readonly groundMaterial: THREE.ShaderMaterial;
 	public readonly pointerPosition: THREE.Vector2 = new THREE.Vector2();
 	public drawMode: PointerState = PointerState.None;
 	private cameraZoomLinear: number = 0;
 	private isPointerDown: boolean = false;
+	public renderWidth: number = 1;
+	public renderHeight: number = 1;
 
 	constructor(renderer: Renderer) {
 		super(renderer);
@@ -39,9 +43,6 @@ export default class ScreenScene extends AbstractScene {
 		);
 
 		this.groundMaterial = ground.material;
-
-		//ground.position.x = 0.5;
-		//ground.position.y = 0.5;
 
 		this.add(ground);
 
@@ -62,15 +63,7 @@ export default class ScreenScene extends AbstractScene {
 			transparent: true
 		});
 
-		const ants = new THREE.InstancedMesh(
-			new THREE.PlaneBufferGeometry(0.015, 0.015),
-			this.material,
-			this.renderer.resources.antsDataRenderTarget0.width * this.renderer.resources.antsDataRenderTarget0.height
-		)
-
-		ants.position.x = ants.position.y = -0.5;
-
-		this.add(ants);
+		this.createInstancedAntsMesh();
 
 		this.camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5);
 
@@ -162,6 +155,33 @@ export default class ScreenScene extends AbstractScene {
 	private updateCameraZoom() {
 		this.camera.zoom = 2 ** this.cameraZoomLinear;
 		this.camera.updateProjectionMatrix();
+	}
+
+	private createInstancedAntsMesh() {
+		if (this.ants) {
+			this.remove(this.ants);
+			this.ants.dispose();
+		}
+
+		const scale = 8 / Config.worldSize;
+
+		const ants = new THREE.InstancedMesh(
+			new THREE.PlaneBufferGeometry(scale, scale),
+			this.material,
+			this.renderer.resources.antsDataRenderTarget0.width * this.renderer.resources.antsDataRenderTarget0.height
+		)
+
+		ants.position.x = ants.position.y = -0.5;
+
+		this.add(ants);
+
+		this.ants = ants;
+	}
+
+	public recompileMaterials() {
+		this.groundMaterial.defines = this.renderer.getCommonMaterialDefines();
+		this.groundMaterial.needsUpdate = true;
+		this.createInstancedAntsMesh();
 	}
 
 	public resize(width: number, height: number) {

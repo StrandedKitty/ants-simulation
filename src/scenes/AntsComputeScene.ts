@@ -18,8 +18,8 @@ export default class AntsComputeScene extends AbstractScene {
 		const material = new THREE.RawShaderMaterial({
 			uniforms: {
 				uTime: {value: 0},
-				tLastState: {value: this.renderer.resources.antsDataRenderTarget0.texture},
-				tWorld: {value: this.renderer.resources.worldRenderTarget.texture},
+				tLastState: {value: null},
+				tWorld: {value: null},
 			},
 			vertexShader,
 			fragmentShader,
@@ -35,15 +35,17 @@ export default class AntsComputeScene extends AbstractScene {
 			this.renderer.resources.antsDataRenderTarget0,
 			this.renderer.resources.antsDataRenderTarget1
 		];
-
-		this.renderWidth = this.renderer.resources.antsDataRenderTarget0.width;
-		this.renderHeight = this.renderer.resources.antsDataRenderTarget0.height;
 	}
 
 	public getRenderTargets(): [WebGLRenderTarget, WebGLRenderTarget] {
 		this.renderTargets.reverse();
 
 		return this.renderTargets;
+	}
+
+	public recompileMaterials() {
+		this.material.defines = this.renderer.getCommonMaterialDefines();
+		this.material.needsUpdate = true;
 	}
 
 	public resize(width: number, height: number) {

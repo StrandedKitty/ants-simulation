@@ -12,13 +12,13 @@ export default class GUI extends EventEmitter {
 
 		const simFolder = this.gui.addFolder('Simulation');
 
-		simFolder.add(Config, 'worldSize', 256, 8096).onChange(() => {
+		simFolder.add(Config, 'worldSize', 256, 4096).onChange(() => {
 			this.emit('worldSize');
 		});
 		simFolder.add(Config, 'antsCount', 1, 1e6).onChange(() => {
 			this.emit('antsCount');
 		});
-		simFolder.add(Config, 'simulationStepsPerSecond', 1, 300).onChange(() => {
+		simFolder.add(Config, 'simulationStepsPerSecond', 1, 500).onChange(() => {
 			this.emit('simulationStepsPerSecond');
 		});
 

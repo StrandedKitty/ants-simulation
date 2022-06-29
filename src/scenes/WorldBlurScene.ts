@@ -4,7 +4,6 @@ import AbstractScene from "./AbstractScene";
 import FullScreenTriangleGeometry from "../utils/FullScreenTriangleGeometry";
 import fragmentShader from '../shaders/worldBlur.frag';
 import vertexShader from '../shaders/worldBlur.vert';
-import {WebGLRenderTarget} from "three";
 
 export default class WorldBlurScene extends AbstractScene {
 	public readonly camera: THREE.OrthographicCamera = new THREE.OrthographicCamera();
@@ -16,7 +15,7 @@ export default class WorldBlurScene extends AbstractScene {
 		const geometry = new FullScreenTriangleGeometry();
 		const material = new THREE.RawShaderMaterial({
 			uniforms: {
-				tWorld: {value: this.renderer.resources.worldRenderTarget.texture},
+				tWorld: {value: null},
 			},
 			vertexShader,
 			fragmentShader,
@@ -27,13 +26,11 @@ export default class WorldBlurScene extends AbstractScene {
 		this.add(mesh);
 
 		this.material = material;
-
-		this.renderWidth = this.renderer.resources.worldRenderTarget.width;
-		this.renderHeight = this.renderer.resources.worldRenderTarget.height;
 	}
 
-	public getRenderTarget(): WebGLRenderTarget {
-		return this.renderer.resources.worldBlurredRenderTarget;
+	public recompileMaterials() {
+		this.material.defines = this.renderer.getCommonMaterialDefines();
+		this.material.needsUpdate = true;
 	}
 
 	public resize(width: number, height: number) {

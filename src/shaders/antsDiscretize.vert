@@ -34,11 +34,11 @@ void main()	{
     float storage = float(int(dataSampleCurrent.w) >> 1);
 
     vIsCarryingFood = isCarrying;
-    vScentFactor = storage / 1000000.;
+    vScentFactor = storage / SCENT_MAX_STORAGE;
     vIsCellCleared = isCellCleared;
 
     gl_Position = vec4(
-        (position.xy * cellSize * 0.01 + floor(offset * WORLD_SIZE) / WORLD_SIZE + cellSize * 0.5) * 2. - 1.,
+        (position.xy * cellSize + floor(offset * WORLD_SIZE) / WORLD_SIZE + cellSize * 0.5) * 2. - 1.,
         0,
         1
     );

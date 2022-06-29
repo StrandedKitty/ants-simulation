@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {SceneCollection} from "./App";
 import Config from "./Config";
+import {WebGLRenderTarget} from "three";
 
 interface Resources {
 	worldRenderTarget: THREE.WebGLRenderTarget;
@@ -73,28 +74,24 @@ export default class Renderer {
 	public renderSimulation(scenes: SceneCollection) {
 		const [antsComputeSource, antsComputeTarget] = scenes.ants.getRenderTargets();
 
-		this.renderer.setViewport(0, 0, scenes.worldBlur.renderWidth, scenes.worldBlur.renderHeight);
-
+		this.setViewportFromRT(this.resources.worldBlurredRenderTarget);
 		this.renderer.setRenderTarget(this.resources.worldBlurredRenderTarget);
 		scenes.worldBlur.material.uniforms.tWorld.value = this.resources.worldRenderTarget.texture;
 		this.renderer.render(scenes.worldBlur, scenes.worldBlur.camera);
 
-		this.renderer.setViewport(0, 0, scenes.ants.renderWidth, scenes.ants.renderHeight);
-
+		this.setViewportFromRT(antsComputeTarget);
 		this.renderer.setRenderTarget(antsComputeTarget);
 		scenes.ants.material.uniforms.tLastState.value = antsComputeSource.texture;
 		scenes.ants.material.uniforms.tWorld.value = this.resources.worldBlurredRenderTarget.texture;
 		this.renderer.render(scenes.ants, scenes.ants.camera);
 
-		this.renderer.setViewport(0, 0, scenes.discretize.renderWidth, scenes.discretize.renderHeight);
-
+		this.setViewportFromRT(this.resources.antsDiscreteRenderTarget);
 		this.renderer.setRenderTarget(this.resources.antsDiscreteRenderTarget);
 		scenes.discretize.material.uniforms.tDataCurrent.value = antsComputeTarget.texture;
 		scenes.discretize.material.uniforms.tDataLast.value = antsComputeSource.texture;
 		this.renderer.render(scenes.discretize, scenes.discretize.camera);
 
-		this.renderer.setViewport(0, 0, scenes.world.renderWidth, scenes.world.renderHeight);
-
+		this.setViewportFromRT(this.resources.worldRenderTarget);
 		this.renderer.setRenderTarget(this.resources.worldRenderTarget);
 		scenes.world.material.uniforms.tLastState.value = this.resources.worldBlurredRenderTarget.texture;
 		scenes.world.material.uniforms.tDiscreteAnts.value = this.resources.antsDiscreteRenderTarget.texture;
@@ -104,8 +101,12 @@ export default class Renderer {
 		scenes.screen.groundMaterial.uniforms.map.value = this.resources.worldRenderTargetCopy.texture;
 	}
 
+	private setViewportFromRT(rt: WebGLRenderTarget) {
+		this.renderer.setViewport(0, 0, rt.width, rt.height);
+	}
+
 	public renderToScreen(scenes: SceneCollection) {
-		this.renderer.setViewport(0, 0, scenes.draw.renderWidth, scenes.draw.renderHeight);
+		this.setViewportFromRT(this.resources.worldRenderTargetCopy);
 		this.renderer.setRenderTarget(this.resources.worldRenderTargetCopy);
 		scenes.draw.material.uniforms.tWorld.value = this.resources.worldRenderTarget.texture;
 		scenes.draw.material.uniforms.pointerPosition.value = scenes.screen.pointerPosition;
@@ -137,8 +138,36 @@ export default class Renderer {
 		};
 	}
 
-	public reset() {
+	public reset(scenes: SceneCollection) {
+		const antTextureSize = Math.ceil(Math.sqrt(Config.antsCount));
 
+		this.resources.worldRenderTarget.setSize(Config.worldSize, Config.worldSize)
+		this.renderer.setRenderTarget(this.resources.worldRenderTarget);
+		this.renderer.clear();
+
+		this.resources.worldRenderTargetCopy.setSize(Config.worldSize, Config.worldSize)
+		this.renderer.setRenderTarget(this.resources.worldRenderTargetCopy);
+		this.renderer.clear();
+
+		this.resources.worldBlurredRenderTarget.setSize(Config.worldSize, Config.worldSize)
+		this.renderer.setRenderTarget(this.resources.worldBlurredRenderTarget);
+		this.renderer.clear();
+
+		this.resources.antsDataRenderTarget0.setSize(antTextureSize, antTextureSize)
+		this.renderer.setRenderTarget(this.resources.antsDataRenderTarget0);
+		this.renderer.clear();
+
+		this.resources.antsDataRenderTarget1.setSize(antTextureSize, antTextureSize)
+		this.renderer.setRenderTarget(this.resources.antsDataRenderTarget1);
+		this.renderer.clear();
+
+		this.resources.antsDiscreteRenderTarget.setSize(Config.worldSize, Config.worldSize)
+		this.renderer.setRenderTarget(this.resources.antsDiscreteRenderTarget);
+		this.renderer.clear();
+
+		for (const scene of Object.values(scenes)) {
+			scene.recompileMaterials();
+		}
 	}
 
 	static convertNumberToFloatString(n: number): string {

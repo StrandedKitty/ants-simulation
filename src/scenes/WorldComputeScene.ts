@@ -4,7 +4,6 @@ import AbstractScene from "./AbstractScene";
 import FullScreenTriangleGeometry from "../utils/FullScreenTriangleGeometry";
 import fragmentShader from '../shaders/world.frag';
 import vertexShader from '../shaders/world.vert';
-import {WebGLRenderTarget} from "three";
 
 export default class WorldComputeScene extends AbstractScene {
 	public readonly camera: THREE.OrthographicCamera = new THREE.OrthographicCamera();
@@ -28,13 +27,11 @@ export default class WorldComputeScene extends AbstractScene {
 		this.add(mesh);
 
 		this.material = material;
-
-		this.renderWidth = this.renderer.resources.worldRenderTarget.width;
-		this.renderHeight = this.renderer.resources.worldRenderTarget.height;
 	}
 
-	public getRenderTarget(): WebGLRenderTarget {
-		return this.renderer.resources.worldRenderTarget;
+	public recompileMaterials() {
+		this.material.defines = this.renderer.getCommonMaterialDefines();
+		this.material.needsUpdate = true;
 	}
 
 	public resize(width: number, height: number) {

@@ -24,7 +24,7 @@ float rand(vec2 co) {
 }
 
 vec2 roundUvToCellCenter(vec2 uv) {
-    return floor(uv * WORLD_SIZE) / WORLD_SIZE;
+    return floor(uv * WORLD_SIZE) / WORLD_SIZE + cellSize * 0.5;
 }
 
 bool tryGetFood(vec2 pos) {

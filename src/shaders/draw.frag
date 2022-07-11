@@ -25,6 +25,10 @@ void main()	{
             isHome = 1;
         } else if (drawMode == 3.) {
             isObstacle = 1;
+        } else if (drawMode == 4.) {
+            isFood = 0;
+            isHome = 0;
+            isObstacle = 0;
         }
     }
 

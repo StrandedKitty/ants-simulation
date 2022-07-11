@@ -12,19 +12,28 @@ export default class GUI extends EventEmitter {
 
 		const simFolder = this.gui.addFolder('Simulation');
 
-		simFolder.add(Config, 'worldSize', 256, 4096).onChange(() => {
-			this.emit('worldSize');
-		});
-		simFolder.add(Config, 'antsCount', 1, 1e6).onChange(() => {
-			this.emit('antsCount');
-		});
-		simFolder.add(Config, 'simulationStepsPerSecond', 1, 500).onChange(() => {
-			this.emit('simulationStepsPerSecond');
-		});
+		simFolder.add(Config, 'worldSize', 256, 4096)
+			.name('World size')
+			.step(1)
+			.onChange(() => {
+				this.emit('worldSize');
+			});
+		simFolder.add(Config, 'antsCount', 0, 22)
+			.name('Ants count    2^')
+			.step(1)
+			.onChange(() => {
+				this.emit('antsCount');
+			});
+		simFolder.add(Config, 'simulationStepsPerSecond', 1, 500)
+			.name('Simulation steps per second')
+			.step(1)
+			.onChange(() => {
+				this.emit('simulationStepsPerSecond');
+			});
 
 		const controlsFolder = this.gui.addFolder('Controls');
 
-		controlsFolder.add(Config, 'brushRadius', 1, 100);
+		controlsFolder.add(Config, 'brushRadius', 1, 100).name('Brush radius');
 
 		simFolder.open();
 		controlsFolder.open();

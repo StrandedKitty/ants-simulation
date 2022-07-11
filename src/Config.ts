@@ -1,6 +1,6 @@
 export default {
 	worldSize: 1024,
-	antsCount: 64 ** 2,
+	antsCount: 12,
 	simulationStepsPerSecond: 60,
 	scentThreshold: 0.01,
 	scentFadeOutFactor: 0.998,

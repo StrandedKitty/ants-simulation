@@ -50,7 +50,7 @@ export default class AntsDiscretizeScene extends AbstractScene {
 
 	}
 
-	public update(deltaTime: number) {
+	public update() {
 
 	}
 }

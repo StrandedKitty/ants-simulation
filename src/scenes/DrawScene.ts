@@ -40,7 +40,7 @@ export default class DrawScene extends AbstractScene {
 
 	}
 
-	public update(deltaTime: number) {
+	public update() {
 
 	}
 }

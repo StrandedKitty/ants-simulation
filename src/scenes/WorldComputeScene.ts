@@ -38,7 +38,7 @@ export default class WorldComputeScene extends AbstractScene {
 
 	}
 
-	public update(deltaTime: number) {
+	public update() {
 
 	}
 }

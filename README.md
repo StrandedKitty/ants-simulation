@@ -15,10 +15,6 @@ If an ant senses the desirable pheromones nearby, then it turns to the direction
 It is important to prevent ants from following pheromone trails left by those ants who wandered too far from home or a food source. Each individual ant has an inventory for storing pheromones. Each time an ant leaves a pheromone marker anywhere on the map a small portion of the stored pheromones is used. And each time it picks up food or reaches home its inventory gets fully refilled.
 
 Pheromone trails left by ants evaporate and diffuse over time.
-
-## Compute pipeline overview
-
-TODO
  
 ## References
 

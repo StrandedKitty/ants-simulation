@@ -23,7 +23,7 @@ export default class Renderer {
 	}
 
 	private initResources() {
-		const antTextureSize = Math.round(Math.sqrt(Config.antsCount));
+		const antTextureSize = Math.round(Math.sqrt(2 ** Config.antsCount));
 
 		this.resources = {
 			worldRenderTarget: new THREE.WebGLRenderTarget(Config.worldSize, Config.worldSize, {
@@ -139,7 +139,7 @@ export default class Renderer {
 	}
 
 	public reset(scenes: SceneCollection) {
-		const antTextureSize = Math.ceil(Math.sqrt(Config.antsCount));
+		const antTextureSize = Math.round(Math.sqrt(2 ** Config.antsCount));
 
 		this.resources.worldRenderTarget.setSize(Config.worldSize, Config.worldSize)
 		this.renderer.setRenderTarget(this.resources.worldRenderTarget);

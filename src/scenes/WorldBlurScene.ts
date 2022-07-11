@@ -37,7 +37,7 @@ export default class WorldBlurScene extends AbstractScene {
 
 	}
 
-	public update(deltaTime: number) {
+	public update() {
 
 	}
 }

@@ -21,10 +21,9 @@ export default new class App {
 	private renderer: Renderer = new Renderer(<HTMLCanvasElement>document.getElementById('canvas'));
 	private scenes: SceneCollection;
 	private gui: GUI = new GUI();
-	private renderLoop = (deltaTime: number): void => this.render(deltaTime);
-	private simInterval: NodeJS.Timer;
-	private simulationStepsPerSecond: number = 0;
-	private simStarted: boolean = false;
+	private renderLoop = (time: number): void => this.render(time);
+	private lastTime: number = 0;
+	private queuedSimSteps: number = 0;
 
 	constructor() {
 		this.initScenes();
@@ -35,9 +34,6 @@ export default new class App {
 
 		this.renderLoop(0);
 
-		this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
-		this.updateSimulationInterval();
-
 		this.gui.on('antsCount', () => {
 			this.resetRenderer();
 		});
@@ -45,25 +41,10 @@ export default new class App {
 		this.gui.on('worldSize', () => {
 			this.resetRenderer();
 		});
-
-		this.gui.on('simulationStepsPerSecond', () => {
-			this.simulationStepsPerSecond = Config.simulationStepsPerSecond;
-			this.updateSimulationInterval();
-		});
 	}
 
 	private resetRenderer() {
 		this.renderer.reset(this.scenes);
-	}
-
-	private updateSimulationInterval() {
-		clearInterval(this.simInterval);
-
-		this.simInterval = setInterval(() => {
-			this.simulationStep();
-
-			this.simStarted = true;
-		}, 1000 / this.simulationStepsPerSecond);
 	}
 
 	private initScenes() {
@@ -90,19 +71,31 @@ export default new class App {
 
 	private simulationStep() {
 		for (const scene of Object.values(this.scenes)) {
-			scene.update(0);
+			scene.update();
 		}
 
 		this.renderer.renderSimulation(this.scenes);
 	}
 
-	private render(deltaTime: number) {
+	private render(time: number) {
 		requestAnimationFrame(this.renderLoop);
 
-		if (!this.simStarted) {
+		const deltaTime = time - this.lastTime;
+		const simStepsToDo = deltaTime / 1000 * Config.simulationStepsPerSecond;
+
+		this.queuedSimSteps += simStepsToDo;
+
+		while (this.queuedSimSteps >= 1) {
+			this.simulationStep();
+			--this.queuedSimSteps;
+		}
+
+		if (time === 0) {
 			return;
 		}
 
 		this.renderer.renderToScreen(this.scenes);
+
+		this.lastTime = time;
 	}
 }

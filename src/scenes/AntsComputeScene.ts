@@ -52,7 +52,7 @@ export default class AntsComputeScene extends AbstractScene {
 
 	}
 
-	public update(deltaTime: number) {
+	public update() {
 		this.material.uniforms.uTime.value = performance.now();
 	}
 }

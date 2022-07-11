@@ -15,5 +15,5 @@ export default abstract class AbstractScene extends THREE.Scene {
 
 	public abstract resize(width: number, height: number): void;
 
-	public abstract update(deltaTime: number): void;
+	public abstract update(): void;
 }

@@ -11,7 +11,8 @@ enum PointerState {
 	None,
 	Food,
 	Home,
-	Obstacle
+	Obstacle,
+	Erase
 }
 
 export default class ScreenScene extends AbstractScene {
@@ -144,6 +145,10 @@ export default class ScreenScene extends AbstractScene {
 					this.drawMode = PointerState.Obstacle;
 					break;
 				}
+				case 'KeyR': {
+					this.drawMode = PointerState.Erase;
+					break;
+				}
 			}
 		});
 
@@ -198,7 +203,7 @@ export default class ScreenScene extends AbstractScene {
 		this.renderHeight = height;
 	}
 
-	public update(deltaTime: number) {
+	public update() {
 
 	}
 }

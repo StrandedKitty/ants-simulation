@@ -23,8 +23,9 @@ void main()	{
     float id = float(gl_InstanceID);
     float sampleY = floor(id / dataTextureSize);
     float sampleX = id - sampleY * dataTextureSize;
+    vec2 antDataUV = (vec2(sampleX, sampleY) + 0.5) / dataTextureSize;
 
-    vec4 dataSample = texture(tData, vec2(sampleX, sampleY) / dataTextureSize);
+    vec4 dataSample = texture(tData, antDataUV);
 
     vec2 offset = dataSample.xy;
     vec2 rotatedPosition = rotate(position.xy, -dataSample.z + PI * 0.5);

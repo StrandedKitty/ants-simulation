@@ -4,6 +4,8 @@ A simple ant colony GPU-accelerated simulation made with Three.js.
 
 **[Live demo](https://vhawk.github.io/ants-simulation/)**
 
+![ants collecting food](https://i.imgur.com/FeU3UvR.png)
+
 ## Rules
 
 Ants can emit two types of pheromones: to-home pheromone and to-food pheromone. To-home pheromones are emitted by those ants searching for food and to-food pheromones are emitted by those carrying food. Ants searching for food are attracted to to-food pheromones, while ants searching for home are attracted to to-home pheromones.

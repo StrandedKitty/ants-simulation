@@ -133,6 +133,7 @@ export default class Renderer {
 			SCENT_BLUR_RADIUS: Renderer.convertNumberToFloatString(Config.scentBlurRadius),
 			SCENT_MAX_STORAGE: Renderer.convertNumberToFloatString(Config.scentMaxStorage),
 			SCENT_PER_MARKER: Renderer.convertNumberToFloatString(Config.scentPerMarker),
+			SCENT_MAX_PER_CELL: Renderer.convertNumberToFloatString(Config.scentMaxPerCell),
 			ANT_SPEED: Renderer.convertNumberToFloatString(Config.antSpeed),
 			ANT_ROTATION_ANGLE: Renderer.convertNumberToFloatString(Config.antRotationAngle)
 		};

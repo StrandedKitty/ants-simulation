@@ -34,11 +34,7 @@ export default new class App {
 
 		this.renderLoop(0);
 
-		this.gui.on('antsCount', () => {
-			this.resetRenderer();
-		});
-
-		this.gui.on('worldSize', () => {
+		this.gui.on('reset', () => {
 			this.resetRenderer();
 		});
 	}
@@ -84,6 +80,7 @@ export default new class App {
 		const simStepsToDo = deltaTime / 1000 * Config.simulationStepsPerSecond;
 
 		this.queuedSimSteps += simStepsToDo;
+		this.queuedSimSteps = Math.min(this.queuedSimSteps, 10);
 
 		while (this.queuedSimSteps >= 1) {
 			this.simulationStep();

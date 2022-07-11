@@ -16,8 +16,8 @@ void main()	{
     int isFood = cellData & 1;
     int isHome = (cellData & 2) >> 1;
     int isObstacle = (cellData & 4) >> 2;
-    float scentToHome = min(10., lastState.y + discreteAnts.x);
-    float scentToFood =  min(10., lastState.z + discreteAnts.y);
+    float scentToHome = min(SCENT_MAX_PER_CELL, lastState.y + discreteAnts.x);
+    float scentToFood =  min(SCENT_MAX_PER_CELL, lastState.z + discreteAnts.y);
 
     if (discreteAnts.z == 1.) {
         isFood = 0;

@@ -15,21 +15,22 @@ export default class GUI extends EventEmitter {
 		simFolder.add(Config, 'worldSize', 256, 4096)
 			.name('World size')
 			.step(1)
-			.onChange(() => {
-				this.emit('worldSize');
-			});
+			.onChange(() => this.emit('reset'));
 		simFolder.add(Config, 'antsCount', 0, 22)
 			.name('Ants count    2^')
 			.step(1)
-			.onChange(() => {
-				this.emit('antsCount');
-			});
+			.onChange(() => this.emit('reset'));
+		simFolder.add(Config, 'scentFadeOutFactor', 0, 0.01)
+			.name('Pheromone evaporation factor')
+			.step(0.0001)
+			.onChange(() => this.emit('reset'));
+		simFolder.add(Config, 'scentBlurRadius', 0, 0.5)
+			.name('Pheromone diffusion factor')
+			.step(0.01)
+			.onChange(() => this.emit('reset'));
 		simFolder.add(Config, 'simulationStepsPerSecond', 1, 500)
 			.name('Simulation steps per second')
-			.step(1)
-			.onChange(() => {
-				this.emit('simulationStepsPerSecond');
-			});
+			.step(1);
 
 		const controlsFolder = this.gui.addFolder('Controls');
 

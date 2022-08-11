@@ -2,7 +2,7 @@
 
 A simple ant colony GPU-accelerated simulation made with Three.js.
 
-**[Live demo](https://vhawk.github.io/ants-simulation/)**
+**[Live demo](https://strandedkitty.github.io/ants-simulation/)**
 
 ![ants collecting food](https://i.imgur.com/FeU3UvR.png)
 
